@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, Image, StyleSheet, View, Text } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, View, Text, Button, SafeAreaView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import openWeatherApi from '../api/OpenWeatherApi';
 import Constants from 'expo-constants';
@@ -31,7 +31,7 @@ export default class WeatherDetailScreen extends React.Component {
     const celsius = this.state.main.temp - 273.15;
 
     return (
-      <Text>온도: {celsius.toFixed(1)}</Text>
+      <Text style={{ fontSize: 50, color: '#fff' }}>{celsius.toFixed(1)}°C</Text>
     )
   }
 
@@ -49,17 +49,17 @@ export default class WeatherDetailScreen extends React.Component {
     const text = (clouds === null) ? '정보 없음' : cloudStatus[Math.max(parseInt(clouds / 20), 4)];
 
     return (
-      <Text>구름: {text}</Text>
+      <Text style={styles.text}>구름: {text}</Text>
     );
   }
 
   renderWind() {
     const speed = _get(this.state, ['wind', 'speed'], null);
     const deg = _get(this.state, ['wind', 'deg'], null);
-    
+
     const arrowStyle = {
       transform: [
-         { rotate: `${deg}deg`}
+        { rotate: `${deg}deg` }
       ],
       width: 24,
       height: 24,
@@ -67,8 +67,8 @@ export default class WeatherDetailScreen extends React.Component {
 
     return (
       <View style={[styles.inRow, styles.alignItemInCenter]}>
-        <Text>
-          풍속: {speed? `${speed}m/s` : '정보 없음'}
+        <Text style={styles.text}>
+          풍속: {speed ? `${speed}m/s` : '정보 없음'}
         </Text>
         <View style={[arrowStyle]}>
           <MaterialCommunityIcons name="arrow-up-circle" size={24} color="black" />
@@ -90,14 +90,32 @@ export default class WeatherDetailScreen extends React.Component {
             width: 72,
             height: 48
           }} />
-          <Text style={styles.textCondition}>{description}</Text>
+          <Text style={styles.textCondition, styles.text}>{description}</Text>
         </View>
       );
     });
   }
 
+  renderMoreDetails() {
+
+    const humidity = this.state.main.humidity;
+    const temp_max = this.state.main.temp_max - 273.15;
+    const temp_min = this.state.main.temp_min - 273.15;
+    return (
+      <>
+        <View>
+          <Text style={styles.text}>습도: {humidity}%</Text>
+        </View>
+        <View style={styles.inRow}>
+          <Text style={styles.text}>최고 기온: {temp_max.toFixed(1)}°C</Text>
+          <Text style={styles.text}>최저 기온: {temp_min.toFixed(1)}°C</Text>
+        </View>
+      </>
+    )
+  }
+
   renderGoogleMap() {
-    const { 
+    const {
       lat, lon
     } = this.state.coord;
 
@@ -137,17 +155,17 @@ export default class WeatherDetailScreen extends React.Component {
         </View>
       )
     }
-    
+
     return (
       <View style={styles.container}>
-        {this.renderClouds()}
+        {this.renderGoogleMap()}
         {this.renderTemperature()}
+        {this.renderClouds()}
+        {this.renderMoreDetails()}
         {this.renderWind()}
         <View style={styles.inRow}>
           {this.renderWeatherCondition()}
         </View>
-
-        {this.renderGoogleMap()}
       </View>
     );
   }
@@ -156,10 +174,16 @@ export default class WeatherDetailScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#8888FF',
+    backgroundColor: '#1c7ed6',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  text: {
+    fontSize: 16,
+    color: '#fff',
+    padding: 5,
+  },
+
   inRow: {
     flexDirection: 'row',
   },
@@ -168,8 +192,8 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     width: '90%',
-    borderWidth: 1,
-    borderColor: '#2222AA'
+    borderWidth: 2,
+    borderColor: '#fff',
   },
   mapImage: {
     aspectRatio: 1,
